@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário do Produto</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="image-container" id="imageContainer">
+            <!-- A imagem será carregada aqui -->
+        </div>
+        <form id="productForm">
+            <div class="informacoes-form">
+            <div>
+            <label for="id">ID</label>
+            <input type="text" id="id" name="id" readonly>
+            </div>
+            <div>
+            <label for="tituloProduto">Título do Produto</label>
+            <input type="text" id="tituloProduto" name="tituloProduto">
+            </div>
+            </div>
+            <div class="informacoes-form">
+            <div>
+            <label for="preco">Preço</label>
+            <input type="number" id="preco" name="preco" step="0.01">
+            </div>
+            <div>
+            <label for="descricao">Descrição</label>
+            <input type="text" id="descricao" name="descricao">
+            </div>
+            </div>
+            <div class="informacoes-form">
+            <div>
+            <label for="imgProduto">Imagem do Produto</label>
+            <input type="text" id="imgProduto" name="imgProduto">
+            </div>
+            <div>
+            <label for="catProduto">Categoria do Produto</label>
+            <input type="text" id="catProduto" name="catProduto">
+            </div>
+            </div>
+            <div class="informacoes2-form">
+            <div>
+            <label for="classProduto">Classificação do Produto</label>
+            <select id="classProduto" name="classProduto">
+                <option value="Novo"><b>Novo</option>
+                <option value="Usado"><b>Usado</option>
+            </select>
+            </div>
+            <div>
+            <label for="exibirHome">Exibir na Home</b></label>
+            <select id="exibirHome" name="exibirHome">
+                <option value="true">Sim</option>
+                <option value="false">Não</option>
+            </select>
+            </div>
+            </div>
+            <div class="salvar-container">
+            <button type="submit"><b>Salvar</b></button>
+            </div>
+        </form>
+    </div>
+
+    <div class="navigation">
+        <button id="prevBtn"><b>Anterior</b></button>
+        <button id="nextBtn"><b>Próximo</b></button>
+    </div>
+
+    <script>
+        let currentId = 1;
+
+        async function fetchProduct(id) {
+            const response = await fetch(`http://127.0.0.1:8000/api/produtos/${id}`);
+            console.log('Status da resposta:', response.status);
+            if (!response.ok) throw new Error("Produto não encontrado");
+
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/produtos/${id}`);
+                if (!response.ok) throw new Error("Produto não encontrado");
+
+                const produto = await response.json();
+
+                document.getElementById("id").value = produto.id;
+                document.getElementById("tituloProduto").value = produto.tituloProduto;
+                document.getElementById("preco").value = produto.preco;
+                document.getElementById("descricao").value = produto.descricao;
+                document.getElementById("imgProduto").value = produto.imgProduto;
+                document.getElementById("catProduto").value = produto.catProduto;
+                document.getElementById("classProduto").value = produto.classProduto;
+                document.getElementById("exibirHome").value = produto.exibirHome;
+
+                const imageContainer = document.getElementById("imageContainer");
+                { console.log("Imagem:zzz", produto.imgProduto) }
+                imageContainer.innerHTML = produto.imgProduto
+                    ? `<img src="http://127.0.0.1:8000/${produto.imgProduto}" alt="Imagem do Produto">`
+                    : "<p>Sem imagem</p>";
+            } catch (error) {
+                console.error("Erro:", error);
+                alert("Não foi possível carregar os dados do produto.");
+            }
+        }
+
+        document.getElementById("prevBtn").addEventListener("click", () => {
+            if (currentId > 1) {
+                currentId--;
+                fetchProduct(currentId);
+            } else {
+                alert("Você está no primeiro produto.");
+            }
+        });
+
+        document.getElementById("nextBtn").addEventListener("click", async () => {
+            currentId++;
+            try {
+                await fetchProduct(currentId);
+            } catch {
+                alert("Você está no último produto.");
+                currentId--;
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => fetchProduct(currentId));
+    </script>
+</body>
+
+</html>
